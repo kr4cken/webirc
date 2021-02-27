@@ -11,4 +11,4 @@ def index():
     return "Hello world!"
 
 if __name__ == "__main__":
-    socketio.run(app, port=int(os.environ.get("PORT", "5000")))
+    socketio.run(app, debug=True, port=5004)
