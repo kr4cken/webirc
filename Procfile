@@ -1,1 +1,1 @@
-web: gunicorn main:socketio
+web: python3 main.py
