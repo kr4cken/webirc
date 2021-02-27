@@ -8,17 +8,41 @@
     <body>
         Hello world!
         <div id="chat"></div>
-        <input type="text" id="chat-input"> <button onclick="sendMessage()">Send</button>
+        <input type="text" id="chat-input" class="form-control" placeholder="Write a message"> <button onclick="sendMessage()" class="btn btn-primary">Send</button>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.2/socket.io.js" integrity="sha512-YybopSVjZU0fe8TY4YDuQbP5bhwpGBE/T6eBUEZ0usM72IWBfWrgVI13qfX4V2A/W7Hdqnm7PIOYOwP9YHnICw==" crossorigin="anonymous"></script>
         <script>
             var socket = io();
+            var nickname = sessionStorage["nickname"] ? sessionStorage.getItem("nickname") : "";
+
             function sendMessage () {
-                console.log(document.getElementById("chat-input").value);
-                socket.emit("message", document.getElementById("chat-input").value);
+                let message = document.getElementById("chat-input").value;
+                  
+                // check if message is a command
+                if (message.startsWith("/")) {
+                    if (message.startsWith("/nick")) {
+                        message = message.split(" ");
+                        nickname = message[1];
+                        sessionStorage.setItem("nickname", nickname);
+                    }
+                }
+                else {
+                    if (nickname !== "") {
+                        socket.emit("message", JSON.stringify({"nickname": nickname, "message": message}));
+                    }
+                    else {
+                        alert("set nickname with /nick");
+                    }
+                }
+
+                // clear input
+                document.getElementById("chat-input").value = "";
             }
+
             socket.on("new_message", (data) => {
-                document.getElementById("chat").innerHTML += "<br>" + data
+                data = JSON.parse(data);
+                document.getElementById("chat").innerText +=  `<${data.nickname}> ` + data.message;
+                document.getElementById("chat").innerHTML += "<br>";
             });
         </script>
     </body>
