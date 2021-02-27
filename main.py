@@ -1,5 +1,6 @@
 import flask
-from flask_socketio import SocketIO 
+from flask_socketio import SocketIO
+import os
 
 app = flask.Flask(__name__)
 app.config["SECRET_KEY"] = "skjdbvksld8123"
