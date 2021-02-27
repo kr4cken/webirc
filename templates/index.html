@@ -8,10 +8,16 @@
     <body>
         Hello world!
         <div id="chat"></div>
-        <input type="text" id="chat-input" class="form-control" placeholder="Write a message" autofocus> <button onclick="sendMessage()" class="btn btn-primary">Send</button>
+        <input type="text" id="chat-input" class="form-control" placeholder="Write a message" autofocus> <button id="btn" onclick="sendMessage()" class="btn btn-primary">Send</button>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.2/socket.io.js" integrity="sha512-YybopSVjZU0fe8TY4YDuQbP5bhwpGBE/T6eBUEZ0usM72IWBfWrgVI13qfX4V2A/W7Hdqnm7PIOYOwP9YHnICw==" crossorigin="anonymous"></script>
         <script>
+            input.addEventListener("keyup", function(event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    document.getElementById("btn").click();
+                }
+            });
             var socket = io();
             var nickname = sessionStorage["nickname"] ? sessionStorage.getItem("nickname") : "";
 
