@@ -1,4 +1,4 @@
-import flask
+import flask, render_template
 from flask_socketio import SocketIO
 import os
 
