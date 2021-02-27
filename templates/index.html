@@ -15,18 +15,27 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.2/socket.io.js" integrity="sha512-YybopSVjZU0fe8TY4YDuQbP5bhwpGBE/T6eBUEZ0usM72IWBfWrgVI13qfX4V2A/W7Hdqnm7PIOYOwP9YHnICw==" crossorigin="anonymous"></script>
         <script>
             var input = document.getElementById("chat-input");
+
+            // entera basınca otomatik olarak mesajı gönder
             input.addEventListener("keyup", function(event) {
                 if (event.keyCode === 13) {
                     event.preventDefault();
                     document.getElementById("chat-send").click();
                 }
             });
+
             var socket = io();
             var nickname = sessionStorage["nickname"] ? sessionStorage.getItem("nickname") : "";
 
             function sendMessage () {
-                let message = document.getElementById("chat-input").value;
+                let message = input.value;
                   
+                // if message is empty space
+                if (!message || message.length === 0 || /^\s*$/.test(message)) {
+                    input.value = "";
+                    return;
+                }
+
                 // check if message is a command
                 if (message.startsWith("/")) {
                     if (message.startsWith("/nick")) {
@@ -45,8 +54,8 @@
                 }
 
                 // clear input
-                document.getElementById("chat-input").value = "";
-                document.getElementById("chat-input").focus();
+                input.value = "";
+                input.focus();
             }
 
             socket.on("new_message", (data) => {
