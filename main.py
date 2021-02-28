@@ -5,14 +5,11 @@ import flask
 import pymongo
 from flask_socketio import SocketIO, send, emit
 
-# bunu nereye koymalı bilemedim
-users =	{}
-
 # flask setup
 app = flask.Flask(__name__, static_url_path="/static")
 app.config["SECRET_KEY"] = "skjdbvksld8123"
 socketio = SocketIO(app)
-nicknames = []
+users =	{}
 
 # mongo setup
 client = pymongo.MongoClient("mongodb+srv://emir:JVDzK7oYjzxtDrUE@cluster0.awjab.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
@@ -39,6 +36,11 @@ def favicon():
 # socket.io
 @socketio.on("message")
 def handleMessage(data):
+    # add sid to message data
+    data = json.loads(data)
+    data["sid"] = flask.request.sid
+    data = json.dumps(data)
+
     emit("new_message", data, broadcast=True)
 
 @socketio.on("me")
@@ -51,18 +53,17 @@ def handleMsgCommand(data):
     if not users[receiver]:
         emit("new_msg", "NO")
     else:
-        emit("new_msg", data, rooms=users[receiver])
+        emit("new_msg", data, room=users[receiver]["sid"])
 
 @socketio.on("nickname")
 def handleNickname(nickname):
     if re.search("[a-z0-9_-]{1,20}$", nickname) or re.search("[\u4E00-\u9FFF\u3400-\u4DBF\u20000-\u2A6DF\u2A700-\u2B73F\u2B740-\u2B81F\u2B820-\u2CEAF\u2CEB0-\u2EBEF\u30000-\u3134F\uF900-\uFAFF\u2E80-\u2EFF\u31C0-\u31EF\u3000-\u303F\u2FF0-\u2FFF\u3300-\u33FF\uFE30-\uFE4F\uF900-\uFAFF\u2F800-\u2FA1F\u3200-\u32FF\u1F200-\u1F2FF\u2F00-\u2FDF]{1,20}", nickname):
-        if nickname in nicknames:
+        if nickname in users:
             emit("new_nickname", "NO")
             return
         else:
             emit("new_nickname", "OK")
-            nicknames.append(nickname)
-            users[nickname] = flask.request.sid
+            users[nickname] = {"sid": flask.request.sid}
             emit("new_user", json.dumps({"nickname": nickname}), broadcast=True)
             return
     else:

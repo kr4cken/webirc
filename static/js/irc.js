@@ -107,12 +107,13 @@ function sendMessage() {
             }
             
             receiver = message[1];
-            private_message = message.slice(2, message.length).join(" ");
+            message = message.slice(2, message.length).join(" ");
             socket.emit("msg", JSON.stringify({
                 "nickname": nickname,
                 "receiver": receiver,
-                "message": private_message
+                "message": message
             }));
+            document.getElementById("chat").innerHTML += "<span class='text-secondary'>" + `[private] ${nickname}->${receiver}: ${message}`+ "</span><br>";
         }
         
         else if (message[0] === "/help") {
@@ -120,7 +121,7 @@ function sendMessage() {
             document.getElementById("chat").innerHTML += "/help: Shows this message<br>";
             document.getElementById("chat").innerHTML += "/nick (nickname), /nickname (nickname): Change your nickname, but you can't get a registered nickname<br>";
             document.getElementById("chat").innerHTML += "/login: Go to login page<br>";
-            document.getElementById("chat").innerHTML += "/me: Send an action message, <span class='text-secondary'>* laughs evilly *</span><br>";
+            document.getElementById("chat").innerHTML += "/me: Send an action message, <span class='text-secondary'>* laughs with an evil intent *</span><br>";
             document.getElementById("chat").innerHTML += "/color (hex): Change the color of your nickname<br>";
         }
 
@@ -194,12 +195,13 @@ socket.on("new_me", (data) => {
 
 // /msg command
 socket.on("new_msg", (data) => {
+    console.log("DEBUG");
     if (data === "NO") {
-        document.getElementById("chat").innerHTML += "<span class='text-danger'>Private message couldn't sent: There is no one that nicknamed</span><br>";
+        document.getElementById("chat").innerHTML += "<span class='text-danger'>Private message couldn't sent: There is no one called ...</span><br>";
     }
     else {
         data = JSON.parse(data);
-        document.getElementById("chat").innerHTML += "<span>&lt;" + data.nickname + "&gt; [Private]</span> " + data.message + "<br>";
+        document.getElementById("chat").innerHTML += "<span class='text-secondary'>" + `[private] ${data.nickname}->${data.receiver}: ${data.message}`+ "</span><br>";
     }
 });
 
