@@ -5,6 +5,9 @@ import flask
 import pymongo
 from flask_socketio import SocketIO, send, emit
 
+# bunu nereye koymalı bilemedim
+users =	{}
+
 # flask setup
 app = flask.Flask(__name__, static_url_path="/static")
 app.config["SECRET_KEY"] = "skjdbvksld8123"
@@ -42,6 +45,12 @@ def handleMessage(data):
 def handleMeCommand(data):
     emit("new_me", data, broadcast=True)
 
+@socketio.on("msg")
+def handleMeCommand(data):
+    receiver = data.receiver
+    if (!users[receiver]) emit("new_msg", "NO")
+    else emit("new_msg", data, rooms=users[receiver])
+
 @socketio.on("nickname")
 def handleNickname(nickname):
     if re.search("[a-z0-9_-]{1,20}$", nickname):
@@ -51,6 +60,7 @@ def handleNickname(nickname):
         else:
             emit("new_nickname", "OK")
             nicknames.append(nickname)
+            users.update({"nickname": flask.request.sid})
             emit("new_user", json.dumps({"nickname": nickname}), broadcast=True)
             return
     else:
