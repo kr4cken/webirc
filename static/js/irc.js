@@ -164,12 +164,14 @@ socket.on("new_message", (data) => {
 socket.on("new_user", (data) => {
     data = JSON.parse(data);
     document.getElementById("chat").innerHTML += "<span class='text-secondary'>[" + data.nickname + " joined us]</span><br>";
+    scrollBottom(); // auto scroll
 });
 
 // /me command
 socket.on("new_me", (data) => {
     data = JSON.parse(data);
     document.getElementById("chat").innerHTML += "<span class='text-secondary'>* " + data.nickname + " " + data.action + " *</span><br>";
+    scrollBottom(); // auto scroll
 });
 
 // setting nickname
@@ -189,4 +191,5 @@ socket.on("new_nickname", (response) => {
     else {
         document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: Nickname is already taken. Choose another nickname.</span><br>"
     }
+    scrollBottom(); // auto scroll
 });
