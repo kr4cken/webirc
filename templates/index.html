@@ -27,6 +27,7 @@
 
             var socket = io();
             var nickname = sessionStorage["nickname"] ? sessionStorage.getItem("nickname") : "";
+            var new_nickname = ""; // just in case...
 
             function sendMessage () {
                 let message = input.value;
@@ -41,11 +42,14 @@
                 if (message.startsWith("/")) {
                     if (message.startsWith("/nick")) {
                         message = message.split(" ");
-                        nickname = message[1];
-                        sessionStorage.setItem("nickname", nickname);
+                        new_nickname = message[1];
+
+                        // servera nickname değişikliğiyle ilgili istek gönder
+                        socket.emit("nickname", new_nickname);
                     }
                 }
                 else {
+                    // if nickname is not set, return an alert
                     if (nickname !== "") {
                         socket.emit("message", JSON.stringify({"nickname": nickname, "message": message}));
                     }
@@ -61,9 +65,21 @@
 
             socket.on("new_message", (data) => {
                 data = JSON.parse(data);
-                document.getElementById("chat").innerText +=  `<${data.nickname}> ` + data.message;
+                document.getElementById("chat").innerText += `<${data.nickname}> ` + data.message;
                 document.getElementById("chat").innerHTML += "<br>";
             });
+
+            socket.on("nickname", (response) => {
+                console.log(response);
+                if (response === "OK") {
+                    nickname = new_nickname;
+                    sessionStorage.setItem("nickname", new_nickname);
+                }
+                else {
+                    document.getElementById("chat").innerText += "Nickname is already taken. Choose another nickname."
+                    document.getElementById("chat").innerHTML += "<br>";
+                }
+            })
         </script>
     </body>
 </html>
