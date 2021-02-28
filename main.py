@@ -36,7 +36,7 @@ def favicon():
 # socket.io
 @socketio.on("message")
 def handleMessage(data):
-    emit("new_message", data, broadcast=True)
+    emit("new_message", json.dumps({"nickname": nickname}), broadcast=True)
 
 @socketio.on("me")
 def handleMeCommand(data):
@@ -51,7 +51,7 @@ def handleNickname(nickname):
         else:
             emit("new_nickname", "OK")
             nicknames.append(nickname)
-            emit("new_user", json.dumps({"nickname": nickname}), broadcast=True)
+            emit("new_user", json.dumps({"message": request.sid}), broadcast=True)
             return
     else:
         emit("new_nickname", "BAD")
