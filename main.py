@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import flask
 from flask_socketio import SocketIO, send, emit
@@ -22,13 +23,17 @@ def handleMessage(data):
 
 @socketio.on("nickname")
 def handleNickname(nickname):
-    if nickname in nicknames:
-        emit("nickname", "NO")
-        return
+    if re.search("^@[a-z0-9_-]{1,20}$", nickname):
+        if nickname in nicknames:
+            emit("nickname", "NO")
+            return
+        else:
+            emit("nickname", "OK")
+            nicknames.append(nickname)
+            emit("new_user", json.dumps({"nickname": nickname}), broadcast=True)
+            return
     else:
-        emit("nickname", "OK")
-        nicknames.append(nickname)
-        emit("new_user", json.dumps({"nickname": nickname}), broadcast=True)
+        emit("nickname", "BAD")
         return
 
 if __name__ == "__main__":
