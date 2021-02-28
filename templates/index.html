@@ -104,6 +104,10 @@
                     nickname = new_nickname;
                     sessionStorage.setItem("nickname", new_nickname);
                 }
+                else if (response === "BAD") {
+                    document.getElementById("chat").innerText += "<span class='text-danger'>Error: Nickname is not valid</span>"
+                    document.getElementById("chat").innerHTML += "<br>";
+                }
                 else {
                     document.getElementById("chat").innerText += "<span class='text-danger'>Error: Nickname is already taken. Choose another nickname.</span>"
                     document.getElementById("chat").innerHTML += "<br>";
