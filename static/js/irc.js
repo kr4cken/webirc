@@ -102,7 +102,7 @@ function sendMessage() {
             }
             
             receiver = message[1];
-            private_message = message[2];
+            private_message = message.slice(2, message.length).join(" ");
             socket.emit("msg", JSON.stringify({
                 "nickname": nickname,
                 "receiver": receiver,
@@ -179,6 +179,17 @@ socket.on("new_user", (data) => {
 socket.on("new_me", (data) => {
     data = JSON.parse(data);
     document.getElementById("chat").innerHTML += "<span class='text-secondary'>* " + data.nickname + " " + data.action + " *</span><br>";
+});
+
+// /msg command
+socket.on("new_msg", (data) => {
+    if (data === "NO") {
+        document.getElementById("chat").innerHTML += "<span class='text-danger'>Private message couldn't sent: There is no one that nicknamed</span><br>";
+    }
+    else {
+        data = JSON.parse(data);
+        document.getElementById("chat").innerHTML += "<span>&lt;" + data.nickname + "&gt; [Private]</span> " + data.message + "<br>";
+    }
 });
 
 // setting nickname
