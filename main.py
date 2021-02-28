@@ -46,9 +46,8 @@ def handleMeCommand(data):
     emit("new_me", data, broadcast=True)
 
 @socketio.on("msg")
-def handleMeCommand(data):
+def handleMsgCommand(data):
     receiver = json.loads(data)["receiver"]
-    print("debug: ", users)
     if not users[receiver]:
         emit("new_msg", "NO")
     else:
@@ -63,7 +62,7 @@ def handleNickname(nickname):
         else:
             emit("new_nickname", "OK")
             nicknames.append(nickname)
-            users.update({"nickname": flask.request.sid})
+            users[nickname] = flask.request.sid
             emit("new_user", json.dumps({"nickname": nickname}), broadcast=True)
             return
     else:
