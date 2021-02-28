@@ -86,8 +86,12 @@
 
             socket.on("new_message", (data) => {
                 data = JSON.parse(data);
-                if (!data.message.includes("@" + nickname)) document.getElementById("chat").innerHTML += "<span style='color: " + data.color + "'>&lt;" + data.nickname + "&gt;</span> " + data.message + "<br>";
-                else document.getElementById("chat").innerHTML += "<span style='color: " + data.color + "'>&lt;" + data.nickname + "&gt;</span> <b>" + data.message + "</b><br>";
+                if (data.message.split(" ").includes("@" + nickname) && nickname !== "") {
+                    document.getElementById("chat").innerHTML += "<span style='color: " + data.color + "'>&lt;" + data.nickname + "&gt;</span> <span class='bg-warning text-dark'>" + data.message + "</span><br>";
+                }
+                else {
+                    document.getElementById("chat").innerHTML += "<span style='color: " + data.color + "'>&lt;" + data.nickname + "&gt;</span> " + data.message + "<br>";
+                }
                       
                 // auto scroll
                 document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
@@ -106,12 +110,10 @@
                     sessionStorage.setItem("nickname", new_nickname);
                 }
                 else if (response === "BAD") {
-                    document.getElementById("chat").innerText += "<span class='text-danger'>Error: Nickname is not valid</span>"
-                    document.getElementById("chat").innerHTML += "<br>";
+                    document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: Nickname is not valid</span><br>";
                 }
                 else {
-                    document.getElementById("chat").innerText += "<span class='text-danger'>Error: Nickname is already taken. Choose another nickname.</span>"
-                    document.getElementById("chat").innerHTML += "<br>";
+                    document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: Nickname is already taken. Choose another nickname.</span><br>"
                 }
             })
         </script>

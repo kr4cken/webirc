@@ -48,3 +48,7 @@ input[type=text] {
 #header {
     height: 5%;
 }
+
+.text-highlight {
+    background-color: #d7d805
+}
