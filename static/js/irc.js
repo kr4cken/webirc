@@ -98,7 +98,7 @@ function sendMessage() {
             document.getElementById("chat").innerHTML += "/nick (nickname), /nickname (nickname): Change your nickname, but you can't get a registered nickname<br>";
             document.getElementById("chat").innerHTML += "/login: Go to login page<br>";
             document.getElementById("chat").innerHTML += "/me: Send an action message, <span class='text-secondary'>* laughs evilly *</span><br>";
-            document.getElementById("chat").innerHTML += "/color (hex): Change the color of your nickname";
+            document.getElementById("chat").innerHTML += "/color (hex): Change the color of your nickname<br>";
         }
 
         else {
