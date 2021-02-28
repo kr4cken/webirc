@@ -68,6 +68,13 @@
                 document.getElementById("chat").innerText += `<${data.nickname}> ` + data.message;
                 document.getElementById("chat").innerHTML += "<br>";
             });
+            
+            //
+            socket.on("new_user", (data) => {
+                data = JSON.parse(data);
+                document.getElementById("chat").innerText += `[${data.nickname}` + "joined us]";
+                document.getElementById("chat").innerHTML += "<br>";
+            });
 
             socket.on("nickname", (response) => {
                 console.log(response);
