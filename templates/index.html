@@ -72,7 +72,7 @@
             //new user notification
             socket.on("new_user", (data) => {
                 data = JSON.parse(data);
-                document.getElementById("chat").innerText += `[${data.nickname}` + "joined us]";
+                document.getElementById("chat").innerText += `[${data.nickname}` + " joined us]";
                 document.getElementById("chat").innerHTML += "<br>";
             });
 
