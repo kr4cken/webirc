@@ -48,6 +48,7 @@ def handleMeCommand(data):
 @socketio.on("msg")
 def handleMeCommand(data):
     receiver = json.loads(data)["receiver"]
+    print("debug: ", users)
     if not users[receiver]:
         emit("new_msg", "NO")
     else:
