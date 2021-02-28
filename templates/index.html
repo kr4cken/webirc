@@ -86,8 +86,9 @@
 
             socket.on("new_message", (data) => {
                 data = JSON.parse(data);
-                document.getElementById("chat").innerHTML += "<span style='color: " + data.color + "'>&lt;" + data.nickname + "&gt;</span> " + data.message + "<br>";
-
+                if (!data.message.includes("@" + nickname)) document.getElementById("chat").innerHTML += "<span style='color: " + data.color + "'>&lt;" + data.nickname + "&gt;</span> " + data.message + "<br>";
+                else document.getElementById("chat").innerHTML += "<span style='color: " + data.color + "'>&lt;" + data.nickname + "&gt;</span> <b>" + data.message + "</b><br>";
+                      
                 // auto scroll
                 document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
             });
