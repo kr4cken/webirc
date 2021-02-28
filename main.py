@@ -1,6 +1,7 @@
+import os
+import json
 import flask
 from flask_socketio import SocketIO, send, emit
-import os
 
 app = flask.Flask(__name__, static_url_path="/static")
 app.config["SECRET_KEY"] = "skjdbvksld8123"
@@ -27,7 +28,7 @@ def handleNickname(nickname):
     else:
         emit("nickname", "OK")
         nicknames.append(nickname)
-        emit("new_user", {"nickname": nickname}, broadcast=True)
+        emit("new_user", json.dumps({"nickname": nickname}), broadcast=True)
         return
 
 if __name__ == "__main__":
