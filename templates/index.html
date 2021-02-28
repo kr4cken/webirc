@@ -16,7 +16,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.2/socket.io.js" integrity="sha512-YybopSVjZU0fe8TY4YDuQbP5bhwpGBE/T6eBUEZ0usM72IWBfWrgVI13qfX4V2A/W7Hdqnm7PIOYOwP9YHnICw==" crossorigin="anonymous"></script>
         <script>
             var input = document.getElementById("chat-input");
-
+            
             // entera basınca otomatik olarak mesajı gönder
             input.addEventListener("keyup", function(event) {
                 if (event.keyCode === 13) {
@@ -27,7 +27,14 @@
 
             var socket = io();
             var nickname = sessionStorage["nickname"] ? sessionStorage.getItem("nickname") : "";
+            var color = sessionStorage["color"] ? sessionStorage.getItem("color") : "#FFFFFF";
             var new_nickname = ""; // just in case...
+
+            // If new user
+            if (nickname === "") {
+                document.getElementById("chat").innerHTML += "Welcome to webirc! You can set a nickname with /nick and start chatting right away<br>";
+                document.getElementById("chat").innerHTML += "You can get a list of commands with /help<br>";
+            }
 
             function sendMessage () {
                 let message = input.value;
@@ -40,21 +47,32 @@
 
                 // check if message is a command
                 if (message.startsWith("/")) {
-                    if (message.startsWith("/nick")) {
-                        message = message.split(" ");
+                    message = message.split(" ");
+                    if (message[0] === "/nick" || message[0] === "/nickname") {
                         new_nickname = message[1];
 
                         // servera nickname değişikliğiyle ilgili istek gönder
                         socket.emit("nickname", new_nickname);
                     }
+                    else if (message[0] === "/color") {
+                        color = message[1];
+                        if (/^#[0-9A-F]{6}$/i.test(color)) {
+                            sessionStorage.setItem("color", color);
+                            document.getElementById("chat").innerHTML += "<span class='text-success'>Color set! Type something to test it</span><br>";
+                        }
+                        else {
+                            document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: Not a valid HEX color</span><br>";
+                            color = "#FFFFFF";
+                        }
+                    }
                 }
                 else {
                     // if nickname is not set, return an alert
                     if (nickname !== "") {
-                        socket.emit("message", JSON.stringify({"nickname": nickname, "message": message}));
+                        socket.emit("message", JSON.stringify({"nickname": nickname, "message": message, "color": color}));
                     }
                     else {
-                        alert("set nickname with /nick");
+                        document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: set a nickname first using /nick</span><br>";
                     }
                 }
 
@@ -65,8 +83,8 @@
 
             socket.on("new_message", (data) => {
                 data = JSON.parse(data);
-                document.getElementById("chat").innerText += `<${data.nickname}> ` + data.message;
-                document.getElementById("chat").innerHTML += "<br>";
+                document.getElementById("chat").innerHTML += "<span style='color: " + data.color + "'>&lt;" + data.nickname + "&gt;</span> " + data.message + "<br>";
+                // document.getElementById("chat").innerHTML += "<br>";
                 document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
             });
 
@@ -84,7 +102,7 @@
                     sessionStorage.setItem("nickname", new_nickname);
                 }
                 else {
-                    document.getElementById("chat").innerText += "Nickname is already taken. Choose another nickname."
+                    document.getElementById("chat").innerText += "<span class='text-red'>Nickname is already taken. Choose another nickname.</span>"
                     document.getElementById("chat").innerHTML += "<br>";
                 }
             })
