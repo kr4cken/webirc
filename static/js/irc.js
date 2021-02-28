@@ -96,7 +96,25 @@ function sendMessage() {
                 "action": message.slice(1, message.length).join(" ")
             }));
         }
-
+        
+        else if (message[0] === "/msg") {
+            // if not logged in, return error
+            if (nickname === "") {
+                document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: set a nickname first using /nick or login using /login</span><br>";
+                input.value = "";
+                input.focus();
+                return;
+            }
+            
+            receiver = message[1];
+            private_message = message.slice(2, message.length).join(" ");
+            socket.emit("msg", JSON.stringify({
+                "nickname": nickname,
+                "receiver": receiver,
+                "message": private_message
+            }));
+        }
+        
         else if (message[0] === "/help") {
             document.getElementById("chat").innerHTML += "List of commands<br>";
             document.getElementById("chat").innerHTML += "/help: Shows this message<br>";
@@ -174,6 +192,17 @@ socket.on("new_me", (data) => {
     scrollBottom(); // auto scroll
 });
 
+// /msg command
+socket.on("new_msg", (data) => {
+    if (data === "NO") {
+        document.getElementById("chat").innerHTML += "<span class='text-danger'>Private message couldn't sent: There is no one that nicknamed</span><br>";
+    }
+    else {
+        data = JSON.parse(data);
+        document.getElementById("chat").innerHTML += "<span>&lt;" + data.nickname + "&gt; [Private]</span> " + data.message + "<br>";
+    }
+});
+
 // setting nickname
 socket.on("new_nickname", (response) => {
     // valid nickname
@@ -191,5 +220,6 @@ socket.on("new_nickname", (response) => {
     else {
         document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: Nickname is already taken. Choose another nickname.</span><br>"
     }
+
     scrollBottom(); // auto scroll
 });
