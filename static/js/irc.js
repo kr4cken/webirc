@@ -28,6 +28,11 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function scrollBottom() {
+    // auto scroll
+    document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+}
+
 function sendMessage() {
     let message = input.value;
 
@@ -104,6 +109,9 @@ function sendMessage() {
         else {
             document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: Invalid command. Type /help to get a list of commands</span><br>";
         }
+
+        // auto scroll
+        scrollBottom(); 
     }
 
     // the message is just a message and not a command
@@ -118,6 +126,7 @@ function sendMessage() {
         }
         else {
             document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: set a nickname first using /nick or login using /login</span><br>";
+            scrollBottom(); // auto scroll
         }
     }
 
@@ -148,7 +157,7 @@ socket.on("new_message", (data) => {
     }
 
     // auto scroll
-    document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+    scrollBottom()
 });
 
 //new user notification
