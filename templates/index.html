@@ -62,7 +62,7 @@
                         if (/^#[0-9A-F]{6}$/i.test(new_color)) {
                             color = new_color;
                             sessionStorage.setItem("color", color);
-                            document.getElementById("chat").innerHTML += "<span style='color:+" + color + "'>Color set! Type something to test it</span><br>";
+                            document.getElementById("chat").innerHTML += "<span style='color:" + color + "'>Color set! Type something to test it</span><br>";
                         }
                         else {
                             document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: Not a valid HEX color</span><br>";
