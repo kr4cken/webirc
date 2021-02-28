@@ -38,6 +38,10 @@ def favicon():
 def handleMessage(data):
     emit("new_message", data, broadcast=True)
 
+@socketio.on("me")
+def handleMeCommand(data):
+    emit("new_me", data, broadcast=True)
+
 @socketio.on("nickname")
 def handleNickname(nickname):
     if re.search("[a-z0-9_-]{1,20}$", nickname):

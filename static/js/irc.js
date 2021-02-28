@@ -61,7 +61,7 @@ function sendMessage() {
         else if (message[0] === "/color") {
             // if not logged in, return error
             if (nickname === "") {
-                document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: set a nickname first using /nick</span><br>";
+                document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: set a nickname first using /nick or login using /login</span><br>";
                 input.value = "";
                 input.focus();
                 return;
@@ -76,6 +76,34 @@ function sendMessage() {
                 document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: Not a valid HEX color</span><br>";
             }
         }
+
+        else if (message[0] === "/me") {
+            // if not logged in, return error
+            if (nickname === "") {
+                document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: set a nickname first using /nick or login using /login</span><br>";
+                input.value = "";
+                input.focus();
+                return;
+            }
+
+            socket.emit("me", JSON.stringify({
+                "nickname": nickname,
+                "action": message.slice(1, message.length).join(" ")
+            }));
+        }
+
+        else if (message[0] === "/help") {
+            document.getElementById("chat").innerHTML += "List of commands<br>";
+            document.getElementById("chat").innerHTML += "/help: Shows this message<br>";
+            document.getElementById("chat").innerHTML += "/nick (nickname), /nickname (nickname): Change your nickname, but you can't get a registered nickname<br>";
+            document.getElementById("chat").innerHTML += "/login: Go to login page<br>";
+            document.getElementById("chat").innerHTML += "/me: Send an action message, <span class='text-secondary'>* laughs evilly *</span><br>";
+            document.getElementById("chat").innerHTML += "/color (hex): Change the color of your nickname";
+        }
+
+        else {
+            document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: Invalid command. Type /help to get a list of commands</span><br>";
+        }
     }
 
     // the message is just a message and not a command
@@ -89,7 +117,7 @@ function sendMessage() {
             }));
         }
         else {
-            document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: set a nickname first using /nick</span><br>";
+            document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: set a nickname first using /nick or login using /login</span><br>";
         }
     }
 
@@ -126,7 +154,13 @@ socket.on("new_message", (data) => {
 //new user notification
 socket.on("new_user", (data) => {
     data = JSON.parse(data);
-    document.getElementById("chat").innerHTML += "[" + data.nickname + " joined us]<br>";
+    document.getElementById("chat").innerHTML += "<span class='text-secondary'>[" + data.nickname + " joined us]</span><br>";
+});
+
+// /me command
+socket.on("new_me", (data) => {
+    data = JSON.parse(data);
+    document.getElementById("chat").innerHTML += "<span class='text-secondary'>* " + data.nickname + " " + data.action + " *</span><br>";
 });
 
 // setting nickname
