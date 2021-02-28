@@ -48,8 +48,10 @@ def handleMeCommand(data):
 @socketio.on("msg")
 def handleMeCommand(data):
     receiver = data.receiver
-    if (!users[receiver]) emit("new_msg", "NO")
-    else emit("new_msg", data, rooms=users[receiver])
+    if not users[receiver]:
+        emit("new_msg", "NO")
+    else:
+        emit("new_msg", data, rooms=users[receiver])
 
 @socketio.on("nickname")
 def handleNickname(nickname):
