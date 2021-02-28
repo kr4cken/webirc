@@ -23,7 +23,7 @@ def handleMessage(data):
 
 @socketio.on("nickname")
 def handleNickname(nickname):
-    if re.search("^@[a-z0-9_-]{1,20}$", nickname):
+    if re.search("[a-z0-9_-]{1,20}$", nickname):
         if nickname in nicknames:
             emit("nickname", "NO")
             return
