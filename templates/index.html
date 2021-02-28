@@ -8,8 +8,8 @@
     </head>
 
     <body>
-        <div class="mt-2"><span class="mx-2">WebIRC</span><hr class="m0"></div>
-        <div id="chat"></div>
+        <div class="mt-2" id="header"><span class="mx-2 fs-5 mt-2" id="logo">WebIRC</span></div>
+        <div id="chat" class="mx-1"></div>
         <div id="bottom" class="row-fluid">
             <input type="text" id="chat-input" placeholder="Write a message" autofocus class="col-11"><button id="chat-send" onclick="sendMessage()" class="col-1">Send</button>
         </div>
@@ -67,6 +67,7 @@
                 data = JSON.parse(data);
                 document.getElementById("chat").innerText += `<${data.nickname}> ` + data.message;
                 document.getElementById("chat").innerHTML += "<br>";
+                document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
             });
 
             socket.on("nickname", (response) => {
