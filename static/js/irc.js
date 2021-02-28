@@ -16,6 +16,7 @@ var color = sessionStorage["color"] ? sessionStorage.getItem("color") : "#FFFFFF
 // just in case...
 var new_nickname = "";
 var new_color = "";
+var last_message_sender = "";
 
 // if new user
 if (nickname === "") {
@@ -115,6 +116,28 @@ function sendMessage() {
             }));
             document.getElementById("chat").innerHTML += "<span class='text-secondary'>" + `[private] ${nickname}->${receiver}: ${message}`+ "</span><br>";
         }
+
+        else if (message[0] === "/r") {
+            // if not logged in, return error
+            if (nickname === "") {
+                document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: set a nickname first using /nick or login using /login</span><br>";
+                input.value = "";
+                input.focus();
+                return;
+            }
+
+            if (last_message_sender === "") {
+                document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: nobody sent you a message to reply :(</span><br>";
+            }
+
+            message = message.slice(1, message.length).join(" ");
+            socket.emit("msg", JSON.stringify({
+                "nickname": nickname,
+                "receiver": last_message_sender,
+                "message": message
+            }));
+            document.getElementById("chat").innerHTML += "<span class='text-secondary'>" + `[private] ${nickname}->${last_message_sender}: ${message}`+ "</span><br>";
+        }
         
         else if (message[0] === "/help") {
             document.getElementById("chat").innerHTML += "List of commands<br>";
@@ -202,6 +225,7 @@ socket.on("new_msg", (data) => {
     else {
         data = JSON.parse(data);
         document.getElementById("chat").innerHTML += "<span class='text-secondary'>" + `[private] ${data.nickname}->${data.receiver}: ${data.message}`+ "</span><br>";
+        last_message_sender = data.nickname;
     }
 });
 
