@@ -1,0 +1,69 @@
+<html>
+    <head>
+        <title>WebIRC</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+        <link rel="stylesheet" href="/static/css/login.css">
+        <style>
+            #login-username {
+                display: inline;
+                width: max-content;
+            }
+
+            #login-password {
+                display: inline;
+                width: max-content;
+
+                text-security: disc;
+                -webkit-text-security: disc;
+                -mox-text-security: disc;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <div class="mt-2" id="header"><span class="mx-2 fs-5 mt-2" id="logo">WebIRC</span></div>
+        <div id="login" class="mx-2 mt-3">
+            If you don't have an account, try to login as "register"<br>
+            If you forgot your password, try to login as "forgot"<br>
+            Login as: <div contenteditable id="login-username" autofocus>&nbsp;</div>
+        </div>
+
+        <script>
+            window.onload = function() {
+                document.getElementById("login-username").focus();
+            };
+
+            var username = "";
+            var password = "";
+
+            document.getElementById("login-username").addEventListener("keydown", function(event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault()
+                    // document.getElementById("login-username").innerText = document.getElementById("login-username").innerText.substring(0, document.getElementById("login-username").length - 2);
+                    username = document.getElementById("login-username").innerText.replace(/\s/g,'')
+                    document.getElementById("login-username").contentEditable = false;
+                    
+                    if (username === "register") {
+
+                    }
+
+                    else if (username === "forgot") {
+
+                    }
+
+                    else {
+                        document.getElementById("login").innerHTML += "<br>" + username + "@ruby-webirc's password: <div contenteditable id=\"login-password\"></div>";
+                        document.getElementById("login-password").focus();
+
+                        document.getElementById("login-password").addEventListener("keydown", function(event) {
+                            if (event.keyCode === 13) {
+                                event.preventDefault();
+                                console.log("error");
+                            }
+                        });
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

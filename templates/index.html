@@ -1,8 +1,7 @@
 <html>
     <head>
-        <title>Web IRC</title>
+        <title>WebIRC</title>
         <link rel="shortcut icon" href="/favicon.ico" />
-        <!-- CSS only -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
         <link rel="stylesheet" href="/static/css/style.css">
     </head>
@@ -14,108 +13,6 @@
             <input type="text" id="chat-input" placeholder="Write a message" autofocus class="col-11"><button id="chat-send" onclick="sendMessage()" class="col-1">Send</button>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.2/socket.io.js" integrity="sha512-YybopSVjZU0fe8TY4YDuQbP5bhwpGBE/T6eBUEZ0usM72IWBfWrgVI13qfX4V2A/W7Hdqnm7PIOYOwP9YHnICw==" crossorigin="anonymous"></script>
-        <script>
-            var input = document.getElementById("chat-input");
-            
-            // entera basınca otomatik olarak mesajı gönder
-            input.addEventListener("keyup", function(event) {
-                if (event.keyCode === 13) {
-                    event.preventDefault();
-                    document.getElementById("chat-send").click();
-                }
-            });
-
-            var socket = io();
-            var nickname = sessionStorage["nickname"] ? sessionStorage.getItem("nickname") : "";
-            var color = sessionStorage["color"] ? sessionStorage.getItem("color") : "#FFFFFF";
-
-            // just in case...
-            var new_nickname = "";
-            var new_color = "";
-
-            // If new user
-            if (nickname === "") {
-                document.getElementById("chat").innerHTML += "Welcome to webirc! You can set a nickname with /nick and start chatting right away<br>";
-                document.getElementById("chat").innerHTML += "You can get a list of commands with /help<br>";
-            }
-
-            function sendMessage () {
-                let message = input.value;
-                  
-                // if message is empty space
-                if (!message || message.length === 0 || /^\s*$/.test(message)) {
-                    input.value = "";
-                    return;
-                }
-
-                // check if message is a command
-                if (message.startsWith("/")) {
-                    message = message.split(" ");
-                    if (message[0] === "/nick" || message[0] === "/nickname") {
-                        new_nickname = message[1];
-
-                        // servera nickname değişikliğiyle ilgili istek gönder
-                        socket.emit("nickname", new_nickname);
-                    }
-                    else if (message[0] === "/color") {
-                        new_color = message[1];
-                        if (/^#[0-9A-F]{6}$/i.test(new_color)) {
-                            color = new_color;
-                            sessionStorage.setItem("color", color);
-                            document.getElementById("chat").innerHTML += "<span style='color:" + color + "'>Color set! Type something to test it</span><br>";
-                        }
-                        else {
-                            document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: Not a valid HEX color</span><br>";
-                        }
-                    }
-                }
-                else {
-                    // if nickname is not set, return an alert
-                    if (nickname !== "") {
-                        socket.emit("message", JSON.stringify({"nickname": nickname, "message": message, "color": color}));
-                    }
-                    else {
-                        document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: set a nickname first using /nick</span><br>";
-                    }
-                }
-
-                // clear input
-                input.value = "";
-                input.focus();
-            }
-
-            socket.on("new_message", (data) => {
-                data = JSON.parse(data);
-                if (data.message.split(" ").includes("@" + nickname) && nickname !== "") {
-                    document.getElementById("chat").innerHTML += "<span style='color: " + data.color + "'>&lt;" + data.nickname + "&gt;</span> <span class='bg-warning text-dark'>" + data.message + "</span><br>";
-                }
-                else {
-                    document.getElementById("chat").innerHTML += "<span style='color: " + data.color + "'>&lt;" + data.nickname + "&gt;</span> " + data.message + "<br>";
-                }
-                      
-                // auto scroll
-                document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
-            });
-
-            //new user notification
-            socket.on("new_user", (data) => {
-                data = JSON.parse(data);
-                document.getElementById("chat").innerHTML += "[" + data.nickname + " joined us]<br>";
-            });
-
-            socket.on("nickname", (response) => {
-                console.log(response);
-                if (response === "OK") {
-                    nickname = new_nickname;
-                    sessionStorage.setItem("nickname", new_nickname);
-                }
-                else if (response === "BAD") {
-                    document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: Nickname is not valid</span><br>";
-                }
-                else {
-                    document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: Nickname is already taken. Choose another nickname.</span><br>"
-                }
-            })
-        </script>
+        <script src="/static/js/irc.js"></script>
     </body>
 </html>
