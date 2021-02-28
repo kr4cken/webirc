@@ -84,15 +84,15 @@
             socket.on("new_message", (data) => {
                 data = JSON.parse(data);
                 document.getElementById("chat").innerHTML += "<span style='color: " + data.color + "'>&lt;" + data.nickname + "&gt;</span> " + data.message + "<br>";
-                // document.getElementById("chat").innerHTML += "<br>";
+
+                // auto scroll
                 document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
             });
 
             //new user notification
             socket.on("new_user", (data) => {
                 data = JSON.parse(data);
-                document.getElementById("chat").innerText += `[${data.nickname}` + " joined us]";
-                document.getElementById("chat").innerHTML += "<br>";
+                document.getElementById("chat").innerHTML += "[" + data.nickname + " joined us]<br>";
             });
 
             socket.on("nickname", (response) => {
@@ -102,7 +102,7 @@
                     sessionStorage.setItem("nickname", new_nickname);
                 }
                 else {
-                    document.getElementById("chat").innerText += "<span class='text-red'>Nickname is already taken. Choose another nickname.</span>"
+                    document.getElementById("chat").innerText += "<span class='text-danger'>Error: Nickname is already taken. Choose another nickname.</span>"
                     document.getElementById("chat").innerHTML += "<br>";
                 }
             })
