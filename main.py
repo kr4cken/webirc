@@ -36,7 +36,7 @@ def favicon():
 # socket.io
 @socketio.on("message")
 def handleMessage(data):
-    emit("new_message", json.dumps({"message": flask.request.sid}), broadcast=True)
+    emit("new_message", data, broadcast=True)
 
 @socketio.on("me")
 def handleMeCommand(data):
