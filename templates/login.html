@@ -25,6 +25,7 @@
         <div id="login" class="mx-2 mt-3">
             If you don't have an account, try to login as "register"<br>
             If you forgot your password, try to login as "forgot"<br>
+            If you want to go back, try to login as "back"<br>
             Login as: <div contenteditable id="login-username" autofocus>&nbsp;</div>
         </div>
 
@@ -49,6 +50,10 @@
 
                     else if (username === "forgot") {
 
+                    }
+
+                    else if (username === "back") {
+                        window.location = "/";
                     }
 
                     else {
