@@ -91,7 +91,25 @@ function sendMessage() {
                 "action": message.slice(1, message.length).join(" ")
             }));
         }
-
+        
+        else if (message[0] === "/msg") {
+            // if not logged in, return error
+            if (nickname === "") {
+                document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: set a nickname first using /nick or login using /login</span><br>";
+                input.value = "";
+                input.focus();
+                return;
+            }
+            
+            receiver = message[1];
+            private_message = message[2];
+            socket.emit("msg", JSON.stringify({
+                "nickname": nickname,
+                "receiver": receiver,
+                "message": private_message
+            }));
+        }
+        
         else if (message[0] === "/help") {
             document.getElementById("chat").innerHTML += "List of commands<br>";
             document.getElementById("chat").innerHTML += "/help: Shows this message<br>";
