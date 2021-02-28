@@ -27,6 +27,7 @@ def handleNickname(nickname):
     else:
         emit("nickname", "OK")
         nicknames.append(nickname)
+        emit("new_user", {"nickname": nickname}, broadcast=True)
         return
 
 if __name__ == "__main__":
