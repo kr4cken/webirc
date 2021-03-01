@@ -26,7 +26,7 @@ def get_login():
     return flask.render_template("login.html")
 @app.route("/login", methods=["POST"])
 def post_login():
-    pass
+    return "hello world!"
 
 # favicon
 @app.route("/favicon.ico")

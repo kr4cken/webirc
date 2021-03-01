@@ -63,7 +63,18 @@
                         document.getElementById("login-password").addEventListener("keydown", function(event) {
                             if (event.keyCode === 13) {
                                 event.preventDefault();
-                                console.log("error");
+                                password = document.getElementById("login-password").innerText.replace(/\s/g,'')
+                                document.getElementById("login-password").contentEditable = false;
+
+                                // send form
+                                var ajax = new XMLHttpRequest();
+                                ajax.onreadystatechange = function() {
+                                    if (this.readyState == 4 && this.status == 200) {
+                                        console.log(this.responseText)
+                                    }
+                                };
+                                ajax.open("POST", "/login", true);
+                                ajax.send(`username=${username}&password=${password}`);
                             }
                         });
                     }
