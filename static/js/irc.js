@@ -12,6 +12,10 @@ input.addEventListener("keyup", function (event) {
 var socket = io();
 var nickname = sessionStorage["nickname"] ? sessionStorage.getItem("nickname") : "";
 var color = sessionStorage["color"] ? sessionStorage.getItem("color") : "#FFFFFF";
+var channel = "#general";
+
+// channel
+socket.emit("join", { "nickname": nickname, "new_channel": channel });
 
 // just in case...
 var new_nickname = "";
@@ -138,6 +142,13 @@ function sendMessage() {
             }));
             document.getElementById("chat").innerHTML += "<span class='text-secondary'>" + `[private] ${nickname}->${last_message_sender}: ${message}`+ "</span><br>";
         }
+
+        else if (message[0] === "/join") {
+            let new_channel = message[1];
+            socket.emit("join", { "nickname": nickname, "old_channel": channel, "new_channel": new_channel });
+            document.getElementById("chat").innerHTML += "<span class='text-secondary'> Changed channel to " + channel + "</span><br>";
+            channel = new_channel;
+        }
         
         else if (message[0] === "/help") {
             document.getElementById("chat").innerHTML += "List of commands<br>";
@@ -163,7 +174,8 @@ function sendMessage() {
             socket.emit("message", JSON.stringify({
                 "nickname": nickname,
                 "message": message,
-                "color": color
+                "color": color,
+                "channel": channel
             }));
         }
         else {

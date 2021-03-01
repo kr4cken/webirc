@@ -3,7 +3,7 @@ import re
 import json
 import flask
 import pymongo
-from flask_socketio import SocketIO, send, emit
+from flask_socketio import SocketIO, send, emit, join_room, leave_room
 
 # flask setup
 app = flask.Flask(__name__, static_url_path="/static")
@@ -39,9 +39,10 @@ def handleMessage(data):
     # add sid to message data
     data = json.loads(data)
     data["sid"] = flask.request.sid
+    channel = data["channel"]
     data = json.dumps(data)
 
-    emit("new_message", data, broadcast=True)
+    emit("new_message", data, room=channel)
 
 @socketio.on("me")
 def handleMeCommand(data):
@@ -69,6 +70,17 @@ def handleNickname(nickname):
     else:
         emit("new_nickname", "BAD")
         return
+
+@socketio.on("join")
+def on_join(data):
+    try:
+        old_channel = data["old_channel"]
+        new_channel = data["new_channel"]
+        leave_room(old_channel)
+        join_room(new_channel)
+    except:
+        new_channel = data["new_channel"]
+        join_room(new_channel)
 
 if __name__ == "__main__":
     socketio.run(app, debug=True, port=5004)
