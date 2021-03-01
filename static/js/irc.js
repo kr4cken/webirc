@@ -145,9 +145,15 @@ function sendMessage() {
 
         else if (message[0] === "/join") {
             let new_channel = message[1];
-            socket.emit("join", { "nickname": nickname, "old_channel": channel, "new_channel": new_channel });
-            document.getElementById("chat").innerHTML += "<span class='text-secondary'> Changed channel to " + channel + "</span><br>";
-            channel = new_channel;
+
+            if (new_channel.charAt(0) !== "#") {
+                document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: illegal channel name</span><br>";
+            }
+            else {
+                socket.emit("join", { "nickname": nickname, "old_channel": channel, "new_channel": new_channel });
+                document.getElementById("chat").innerHTML += "<span class='text-secondary'> Changed channel to " + channel + "</span><br>";
+                channel = new_channel;
+            }
         }
         
         else if (message[0] === "/help") {
