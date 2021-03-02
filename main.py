@@ -50,14 +50,18 @@ def handleMeCommand(data):
 
 @socketio.on("msg")
 def handleMsgCommand(data):
-    receiver = json.loads(data)["receiver"]
+    receiver = data["receiver"]
     if not users[receiver]:
         emit("new_msg", "NO")
     else:
         emit("new_msg", data, room=users[receiver]["sid"])
 
 @socketio.on("nickname")
-def handleNickname(nickname):
+def handleNickname(data):
+    data = json.loads(data)
+    nickname = data["nickname"]
+    channel = data["channel"]
+
     if re.search("[a-z0-9_-]{1,20}$", nickname) or re.search("[\u4E00-\u9FFF\u3400-\u4DBF\u20000-\u2A6DF\u2A700-\u2B73F\u2B740-\u2B81F\u2B820-\u2CEAF\u2CEB0-\u2EBEF\u30000-\u3134F\uF900-\uFAFF\u2E80-\u2EFF\u31C0-\u31EF\u3000-\u303F\u2FF0-\u2FFF\u3300-\u33FF\uFE30-\uFE4F\uF900-\uFAFF\u2F800-\u2FA1F\u3200-\u32FF\u1F200-\u1F2FF\u2F00-\u2FDF]{1,20}", nickname):
         if nickname in users:
             emit("new_nickname", "NO")
@@ -65,7 +69,7 @@ def handleNickname(nickname):
         else:
             emit("new_nickname", "OK")
             users[nickname] = {"sid": flask.request.sid}
-            emit("new_user", json.dumps({"nickname": nickname}), broadcast=True)
+            emit("new_user", {"nickname": nickname}, room=channel)
             return
     else:
         emit("new_nickname", "BAD")
@@ -73,12 +77,17 @@ def handleNickname(nickname):
 
 @socketio.on("join")
 def on_join(data):
-    try:
+    if "old_channel" in data:
         old_channel = data["old_channel"]
         new_channel = data["new_channel"]
+        nickname = data["nickname"]
+
         leave_room(old_channel)
         join_room(new_channel)
-    except:
+
+        emit("left_channel", {"nickname": nickname}, room=old_channel)
+        emit("new_user", {"nickname": nickname}, room=new_channel)
+    else:
         new_channel = data["new_channel"]
         join_room(new_channel)
 

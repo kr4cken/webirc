@@ -23,6 +23,10 @@ input[type=text] {
     border-color: #FFF;
 }
 
+#channel-name {
+    color: #96979a;
+}
+
 #chat-send {
     background-color: #2d3036;
     border: 0.5px solid;

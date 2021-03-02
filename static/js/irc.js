@@ -1,3 +1,4 @@
+// input field
 var input = document.getElementById("chat-input");
 
 // press send when pressed the key enter
@@ -56,7 +57,10 @@ function sendMessage() {
             new_nickname = message[1];
 
             // servera nickname değişikliğiyle ilgili istek gönder
-            socket.emit("nickname", new_nickname);
+            socket.emit("nickname", JSON.stringify({
+                "nickname": new_nickname,
+                "channel": channel
+            }));
         }
 
         // redirect to login page
@@ -87,6 +91,7 @@ function sendMessage() {
             }
         }
 
+        // * laughs with an evil intent :) *
         else if (message[0] === "/me") {
             // if not logged in, return error
             if (nickname === "") {
@@ -102,7 +107,11 @@ function sendMessage() {
             }));
         }
         
+        // private message command
         else if (message[0] === "/msg") {
+            receiver = message[1];
+            message = message.slice(2, message.length).join(" ");
+
             // if not logged in, return error
             if (nickname === "") {
                 document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: set a nickname first using /nick or login using /login</span><br>";
@@ -110,17 +119,16 @@ function sendMessage() {
                 input.focus();
                 return;
             }
-            
-            receiver = message[1];
-            message = message.slice(2, message.length).join(" ");
-            socket.emit("msg", JSON.stringify({
+
+            socket.emit("msg", {
                 "nickname": nickname,
                 "receiver": receiver,
                 "message": message
-            }));
+            });
             document.getElementById("chat").innerHTML += "<span class='text-secondary'>" + `[private] ${nickname}->${receiver}: ${message}`+ "</span><br>";
         }
 
+        // reply command
         else if (message[0] === "/r") {
             // if not logged in, return error
             if (nickname === "") {
@@ -130,41 +138,56 @@ function sendMessage() {
                 return;
             }
 
+            // if there's no message received
             if (last_message_sender === "") {
                 document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: nobody sent you a message to reply :(</span><br>";
             }
 
             message = message.slice(1, message.length).join(" ");
-            socket.emit("msg", JSON.stringify({
+            socket.emit("msg", {
                 "nickname": nickname,
                 "receiver": last_message_sender,
                 "message": message
-            }));
+            });
             document.getElementById("chat").innerHTML += "<span class='text-secondary'>" + `[private] ${nickname}->${last_message_sender}: ${message}`+ "</span><br>";
         }
 
+        // join new channel
         else if (message[0] === "/join") {
             let new_channel = message[1];
 
+            // if the channel name is not valid
             if (new_channel.charAt(0) !== "#") {
                 document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: illegal channel name</span><br>";
             }
+
             else {
-                socket.emit("join", { "nickname": nickname, "old_channel": channel, "new_channel": new_channel });
-                document.getElementById("chat").innerHTML += "<span class='text-secondary'> Changed channel to " + channel + "</span><br>";
+                socket.emit("join",{
+                    "nickname": nickname,
+                    "old_channel": channel,
+                    "new_channel": new_channel
+                });
+
+                document.getElementById("chat").innerHTML += "<span class='text-secondary'> Changed channel to " + new_channel + "</span><br>";
+                document.getElementById("channel-name").innerText = new_channel;
                 channel = new_channel;
             }
         }
         
+        // makarna
         else if (message[0] === "/help") {
-            document.getElementById("chat").innerHTML += "List of commands<br>";
+            document.getElementById("chat").innerHTML += "List of commands<br>--------------------------------------<br>";
             document.getElementById("chat").innerHTML += "/help: Shows this message<br>";
             document.getElementById("chat").innerHTML += "/nick (nickname), /nickname (nickname): Change your nickname, but you can't get a registered nickname<br>";
             document.getElementById("chat").innerHTML += "/login: Go to login page<br>";
             document.getElementById("chat").innerHTML += "/me: Send an action message, <span class='text-secondary'>* laughs with an evil intent *</span><br>";
             document.getElementById("chat").innerHTML += "/color (hex): Change the color of your nickname<br>";
+            document.getElementById("chat").innerHTML += "/msg (user) (message): Privately message to user<br>";
+            document.getElementById("chat").innerHTML += "/r: Reply to last private message you received<br>";
+            document.getElementById("chat").innerHTML += "/join (channel): Join channel<br>";
         }
 
+        // invalid command
         else {
             document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: Invalid command. Type /help to get a list of commands</span><br>";
         }
@@ -175,7 +198,6 @@ function sendMessage() {
 
     // the message is just a message and not a command
     else {
-        // if nickname is not set, return an error
         if (nickname !== "") {
             socket.emit("message", JSON.stringify({
                 "nickname": nickname,
@@ -184,6 +206,8 @@ function sendMessage() {
                 "channel": channel
             }));
         }
+
+        // if nickname is not set, return an error
         else {
             document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: set a nickname first using /nick or login using /login</span><br>";
             scrollBottom(); // auto scroll
@@ -195,7 +219,9 @@ function sendMessage() {
     input.focus();
 }
 
-// when a message is broadcasted
+// socket.io events
+
+// when a message is received from the server
 socket.on("new_message", (data) => {
     data = JSON.parse(data);
 
@@ -211,7 +237,6 @@ socket.on("new_message", (data) => {
         document.getElementById("chat").innerHTML += "<span style='color: " + data.color + "'>&lt;" + data.nickname + "&gt;</span> <span class='bg-warning text-dark'>" + data.message + "</span><br>";
     }
 
-    // just... send.. the... message
     else {
         document.getElementById("chat").innerHTML += "<span style='color: " + data.color + "'>&lt;" + data.nickname + "&gt;</span> " + data.message + "<br>";
     }
@@ -222,9 +247,14 @@ socket.on("new_message", (data) => {
 
 //new user notification
 socket.on("new_user", (data) => {
-    data = JSON.parse(data);
-    document.getElementById("chat").innerHTML += "<span class='text-secondary'>[" + data.nickname + " joined us]</span><br>";
+    document.getElementById("chat").innerHTML += "<span class='text-secondary'>[" + data.nickname + " joined]</span><br>";
     scrollBottom(); // auto scroll
+});
+
+// [user] left the channel
+socket.on("left_channel", (data) => {
+    document.getElementById("chat").innerHTML += "<span class='text-secondary'>[" + data.nickname + " left]</span><br>";
+    scrollBottom();
 });
 
 // /me command
@@ -241,7 +271,6 @@ socket.on("new_msg", (data) => {
         document.getElementById("chat").innerHTML += "<span class='text-danger'>Private message couldn't sent: There is no one called ...</span><br>";
     }
     else {
-        data = JSON.parse(data);
         document.getElementById("chat").innerHTML += "<span class='text-secondary'>" + `[private] ${data.nickname}->${data.receiver}: ${data.message}`+ "</span><br>";
         last_message_sender = data.nickname;
     }
