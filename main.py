@@ -46,7 +46,7 @@ def handleMessage(data):
 
 @socketio.on("me")
 def handleMeCommand(data):
-    emit("new_me", data, broadcast=True)
+    emit("new_me", data, room=data["channel"])
 
 @socketio.on("msg")
 def handleMsgCommand(data):
@@ -90,6 +90,17 @@ def on_join(data):
     else:
         new_channel = data["new_channel"]
         join_room(new_channel)
+
+@socketio.on("invite")
+def on_invite(data):
+    inviter = data["inviter"]
+    invitee = data["invitee"]
+
+    if not invitee in users:
+        emit("invite_error", data, room=users[inviter]["sid"])
+    else:
+        emit("new_invite", data, room=users[inviter]["sid"])
+        emit("new_invite", data, room=users[invitee]["sid"])
 
 if __name__ == "__main__":
     socketio.run(app, debug=True, port=5004)

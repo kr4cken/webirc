@@ -101,10 +101,11 @@ function sendMessage() {
                 return;
             }
 
-            socket.emit("me", JSON.stringify({
+            socket.emit("me", {
                 "nickname": nickname,
-                "action": message.slice(1, message.length).join(" ")
-            }));
+                "action": message.slice(1, message.length).join(" "),
+                "channel": channel
+            });
         }
         
         // private message command
@@ -162,7 +163,7 @@ function sendMessage() {
             }
 
             else {
-                socket.emit("join",{
+                socket.emit("join", {
                     "nickname": nickname,
                     "old_channel": channel,
                     "new_channel": new_channel
@@ -174,6 +175,36 @@ function sendMessage() {
             }
         }
         
+        else if (message[0] === "/invite") {
+            // if not logged in, return error
+            if (nickname === "") {
+                document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: set a nickname first using /nick or login using /login</span><br>";
+                input.value = "";
+                input.focus();
+                return;
+            }
+
+            let invitee = message[1], to = message[2];
+
+            // check if the nickname is valid
+            if (invitee.charAt(0) !== "@" || invitee.length > 20) {
+                document.getElementById("chat").innerHTML += "<span class='text-danger'>Error: Illegal nickname. You should put a @ before the nickname and nicknames can't be longer than 20 characters</span><br>";
+            }
+            else {
+                // if to is not given
+                if (!to || to.length === 0 || /^\s*$/.test(to)) {
+                    to = channel;
+                }
+
+                // finally send invite
+                socket.emit("invite", {
+                    "inviter": nickname,
+                    "invitee": invitee.substring(1, invitee.length),
+                    "to": to
+                });
+            }
+        }
+
         // makarna
         else if (message[0] === "/help") {
             document.getElementById("chat").innerHTML += "List of commands<br>--------------------------------------<br>";
@@ -259,7 +290,6 @@ socket.on("left_channel", (data) => {
 
 // /me command
 socket.on("new_me", (data) => {
-    data = JSON.parse(data);
     document.getElementById("chat").innerHTML += "<span class='text-secondary'>* " + data.nickname + " " + data.action + " *</span><br>";
     scrollBottom(); // auto scroll
 });
@@ -275,6 +305,21 @@ socket.on("new_msg", (data) => {
         last_message_sender = data.nickname;
     }
 });
+
+// /invite command
+socket.on("new_invite", (data) => {
+    if (data["inviter"] === nickname) {
+        document.getElementById("chat").innerHTML += "<span class='text-secondary'>" + `* Invited ${data.invitee} to ${data.to}`+ "</span><br>";
+    }
+    else {
+        document.getElementById("chat").innerHTML += "<span class='text-secondary'>" + `* @${data.inviter} invited you to ${data.to}`+ "</span><br>";
+    } 
+    scrollBottom(); // auto scroll
+});
+
+socket.on("invite_error", (data) => {
+    document.getElementById("chat").innerHTML += `<span class='text-danger'>Error: Could not invite @${data.invitee}, perhaps there's no one called ${data.invitee}?</span><br>`;
+})
 
 // setting nickname
 socket.on("new_nickname", (response) => {
